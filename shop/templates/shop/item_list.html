@@ -18,7 +18,7 @@
 			      <p class="card-text">{{item.desc}}</p>
 			      {% endif %}
 			    </div>
-			    	<a class="btn btn-primary btn-block">구매하기</a>
+			    	<a class="btn btn-primary btn-block" href="{% url "shop:order_new" item.id %}">구매하기</a>
 			  </div>
 			</div>
 			{% endfor %}			

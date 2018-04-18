@@ -4,6 +4,7 @@ from django.contrib.auth.decorators import login_required
 from django.contrib.auth import get_user_model
 from django.urls import reverse_lazy #success_url 활용 될때 순차적으로 실행하지않고 "게으르게" 실행
 from django.contrib.auth.forms import UserCreationForm
+# from shop.models import Order
 
 User = get_user_model()
 
@@ -16,4 +17,8 @@ signup = CreateView.as_view(model=User, form_class=UserCreationForm,
 
 @login_required
 def profile(request):
-	return render(request, 'accounts/profile.html')
+	order_list = request.user.order_set.all() #order_list 획득
+	# order_list = Order.Objects.filter(user = request.user)
+	return render(request, 'accounts/profile.html', {
+			'order_list':order_list,
+		})

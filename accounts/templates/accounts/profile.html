@@ -1,14 +1,21 @@
 {% extends "accounts/layout.html" %}
 
 {% block content %}
-<div class="container">
-	<div class="row">
-		<div class="col-sm-12">
-			<h3>{{user}} 프로필</h3>
-			
-			<h4>주문내역</h4>
-
-		</div>
-	</div>
-</div>
+{% load humanize %}
+<table class="table table-hover table-bordered">
+	<thead>
+		<tr>
+			<th>상품명</th>
+			<th>결제가격</th>
+		</tr>
+	</thead>
+	<tbody>
+		{% for order in order_list %}
+		<tr>
+			<td>{{ order.name }}</td>
+			<td class="text-right">{{ order.amount|intcomma }}</td>
+		</tr>
+		{% endfor %}
+	</tbody>
+</table>
 {% endblock %}
