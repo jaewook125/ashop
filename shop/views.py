@@ -31,7 +31,7 @@ def order_new(request, item_id): #특정 아이템 하나만 지정해서 name,a
 	if request.method == "POST": #모든 view는 POST로 구분된다
 		form = OrderForm(request.POST, initial=initial) #모든 폼은 initial이라는 초기값이 있다
 		if form.is_valid():
-			order = form.save(commit=False)
+			order = form.save(commit=False) #실제 결제가 되므로 order인스턴스가 생성됐다.
 			order.user = request.user
 			order.item = item 
 			order.save()
@@ -41,4 +41,5 @@ def order_new(request, item_id): #특정 아이템 하나만 지정해서 name,a
 
 	return render(request, "shop/order_form.html", {
 			'form':form,
+			'iamport_shop_id':'iamport', #가맹점 식별코드
 		})

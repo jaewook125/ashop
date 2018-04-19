@@ -3,7 +3,7 @@
 {% block content %}
 <div class="container">
 		<div class="col-sm-8 offset-md-2 mt-3">
-				<form action="" method="post">
+				<form action="" method="post" id="order-form">
 					{% csrf_token %}
 					<div class="card card-default">
 						<div class="card-header">
@@ -21,4 +21,32 @@
 				</form>
 		</div>
 </div>
+{% endblock %}
+
+{% block extra_body %}
+<script src="//code.jquery.com/jquery-2.2.4.min.js"></script>
+<script src="https://service.iamport.kr/js/iamport.payment-1.1.5.js"></script>
+<script>
+	$(function() { //현재 페이지가 로드되면 그 즉시 실행 
+	var $form = $('#order-form');
+	var params = {
+		name: $form.find('[name=name]').val(), //css select문법 사용
+		amount: $form.find('[name=amount]').val(), //필드에있는 값을 불러온다, views에서 지정해줌 
+	};
+		IMP.init('{{ iamport_shop_id }}'); //가맹점 식별코드
+		IMP.request_pay(params, function(response_data) { //name, amount를 받고 콜백시킴
+			console.log('response_data :', response_data); //성공내역을 출력
+			if ( ! response_data.success ) { //성공 실패시
+				alert(response_data.error_msg + "(" + response_data.error_code + ")");
+				location.href = '{% url "shop:index" %}'; //실패 메세지와 코드를 보여주고 index 강제이동
+			}
+			else { //성공시
+				$.each(response_data, function(key, value) { //response_data에 key,value값을 가지고와서
+				$form.find("input[name=" + key + "]").val(value);// 관련된 필드값을 채우고
+			});
+				$form.submit(); //전달
+			}
+	});
+});
+</script>
 {% endblock %}
