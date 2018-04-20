@@ -1,6 +1,7 @@
 from uuid import uuid4 #32글자 랜덤생성
 from django.db import models
 from django.conf import settings
+from iamport import Iamport
 
 class Item(models.Model):
 	name = models.CharField(max_length=100, db_index=True)
@@ -36,3 +37,19 @@ class Order(models.Model):
 	updated_at = models.DateTimeField(auto_now=True)
 	class Meta:
 		ordering = ('-id',)
+
+	@property
+	def api(self):
+		'Iamport Client 인스턴스'
+		return Iamport(settings.IAMPORT_API_KEY, settings.IAMPORT_API_SECRET)
+
+	def update(self, commit=True, meta=None):
+		'결제내역 갱신'
+		if self.imp_uid: #imp_uid에 응답을 받으면
+			self.meta = meta or self.api.find(imp_uid=self.imp_uid) #merchant_uid는 반드시 매칭되어야함.
+			assert str(self.merchant_uid) == self.meta['merchant_uid']
+			#반드시 같아야한다 assert[단언하다]
+
+			self.status = self.meta['status']
+		if commit:
+			self.save()

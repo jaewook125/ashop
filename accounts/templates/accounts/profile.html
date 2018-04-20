@@ -7,6 +7,7 @@
 		<tr>
 			<th>상품명</th>
 			<th>결제가격</th>
+			<th>결제내역</th>
 		</tr>
 	</thead>
 	<tbody>
@@ -14,6 +15,7 @@
 		<tr>
 			<td>{{ order.name }}</td>
 			<td class="text-right">{{ order.amount|intcomma }}</td>
+			<td>{{ order.status }}</td>
 		</tr>
 		{% endfor %}
 	</tbody>
