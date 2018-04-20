@@ -1,6 +1,7 @@
 from django.contrib import admin
-from .models import Item
+from .models import Item, Order
 from django.utils.safestring import mark_safe
+
 @admin.register(Item)
 class ItemAdmin(admin.ModelAdmin):
 	list_display = ['photo_tag','name','amount']
@@ -16,3 +17,7 @@ class ItemAdmin(admin.ModelAdmin):
 			#이경우에는 mark_safe를 사용한다
 		return None
 
+
+@admin.register(Order)
+class OrderAdmin(admin.ModelAdmin):
+	list_display = ('merchant_uid', 'imp_uid', 'status')
