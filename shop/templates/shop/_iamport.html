@@ -4,11 +4,7 @@
 		//forms.py 
 		IMP.init("{{ iamport_shop_id }}");
 		//forms.py
-		IMP.request_pay(params, function(response_data){
-		if ( ! response_data.success ) {
-			alert(response_data.error_msg + "(" + response_data.error_code + ")");
-			location.href = '{% url "shop:index" %}';
-	}
+		IMP.{{ imp_fn_name }}(params, function(response_data){
 
 		var $form = $("#iamport-script").closest("form"); 
 		// 현재 스크립트코드로부터 가장 가까운 forms를 찾아서 form에 접근

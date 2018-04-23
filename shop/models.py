@@ -7,6 +7,8 @@ from iamport import Iamport
 from jsonfield import JSONField
 from datetime import datetime
 from django.utils.safestring import mark_safe
+from django.http import Http404
+
 
 def named_property(name): #직접만든 함수
 	def wrap(fn):
@@ -116,10 +118,27 @@ class Order(models.Model):
 	def update(self, commit=True, meta=None):
 		'결제내역 갱신'
 		if self.imp_uid: #imp_uid에 응답을 받으면
-			self.meta = meta or self.api.find(imp_uid=self.imp_uid) #merchant_uid는 반드시 매칭되어야함.
+			try:
+				self.meta = meta or self.api.find(imp_uid=self.imp_uid) #merchant_uid는 반드시 매칭되어야함.
+			except Iamport.HttpError:
+				raise Http404('Not found {}'.format(self.imp_uid))
 			assert str(self.merchant_uid) == self.meta['merchant_uid']
 			#반드시 같아야한다 assert[단언하다]
 
 			self.status = self.meta['status']
+		if commit:
+			self.save()
+
+	def cancel(self, reason=None, commit=True):
+		'결제내역 취소'
+		try:
+			meta = self.api.cancel(reason, imp_uid=self.imp_uid)
+			#취소하고나서 정보는 meta로 받는다
+			#취소할때 imp_uid
+			assert str(self.merchant_uid) == self.meta['merchant_uid']
+			#반드시 같아야한다 assert[단언하다]
+			self.update(commit=commit, meta=meta)
+		except Iamport.ResponseError as e: # 취소시 오류 예외처리(이미 취소된 결제는 에러가 발생함)
+			self.update(commit=commit)
 		if commit:
 			self.save()

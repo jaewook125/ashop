@@ -5,7 +5,7 @@ from django.utils.encoding import smart_text
 from django.template.loader import render_to_string
 from django import forms
 from .models import Order
-
+from .mixins import IamportBaseForm
 
 # class OrderForm(forms.ModelForm):
 # 	#각각의 모델필드로부터 폼필드를 생성
@@ -19,27 +19,14 @@ from .models import Order
 # 			#폼필드 재정의 ex) <input type="text" readonly="readonly" />
 # 		}
 
-class PayForm(forms.ModelForm):
+class PayForm(IamportBaseForm):
+	template_name = 'shop/_iamport.html'
+	params_names = ['merchant_uid', 'name', 'amount']
+	imp_fn_name = 'request_pay'
+
 	class Meta:
 		model = Order
-		fields = ('imp_uid',)
-
-	def as_iamport(self):
-		# 본 Form의 Hidden 필드 위젯
-		hidden_fields = mark_safe(''.join(smart_text(field) for field in self.hidden_fields())) #안전한 문자열
-		# IMP.request_pay의 인자로 넘길 인자 목록
-		fields = {
-			'merchant_uid': str(self.instance.merchant_uid), ##uuid4에 리턴 값에대한 객체
-			'name': self.instance.name,
-			'amount': self.instance.amount,
+		fields = ['imp_uid']
+		widgets = {
+			'imp_uid': forms.HiddenInput,
 		}
-		return hidden_fields + render_to_string('shop/_iamport.html', {
-			'json_fields': mark_safe(json.dumps(fields, ensure_ascii=False)), 
-			#json으로 직렬화 한 후 
-			'iamport_shop_id': settings.IAMPORT_SHOP_ID, # FIXME: 각자의 상점 아이디로 변경 가능
-		})
-
-	def save(self):
-		order = super().save(commit=False)
-		order.update()
-		return order
