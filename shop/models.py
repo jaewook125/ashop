@@ -2,6 +2,7 @@ from uuid import uuid4 #32글자 랜덤생성
 from django.db import models
 from django.conf import settings
 from iamport import Iamport
+from jsonfield import JSONField
 
 class Item(models.Model):
 	name = models.CharField(max_length=100, db_index=True)
@@ -33,6 +34,7 @@ class Order(models.Model):
 		),
 		default='ready',
 		db_index=True)
+	meta = JSONField(blank=True, default={})
 	created_at = models.DateTimeField(auto_now_add=True)
 	updated_at = models.DateTimeField(auto_now=True)
 	class Meta:
